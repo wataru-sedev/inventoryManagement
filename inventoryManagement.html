@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在庫管理</title>
+</head>
+<body>
+    <h2>在庫管理システム</h2>
+    <input type="text" id="drinkName" placeholder="ドリンク名">
+    <input type="number" id="drinkQuantity" placeholder="数量">
+    <button onclick="addDrink()">追加</button>
+    <div class="table-container">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ドリンク名</th>
+                    <th>在庫数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+
+        function renderTable() {
+            const table = document.getElementById("inventoryTable");
+            table.innerHTML = "";
+            inventory.forEach((item, index) => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>
+                            <button onclick="updateQuantity(${index})">更新</button>
+                            <button onclick="deleteDrink(${index})">削除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function addDrink() {
+            const name = document.getElementById("drinkName").value.trim();
+            const quantity = parseInt(document.getElementById("drinkQuantity").value, 10);
+            if (!name) {
+            alert("飲み物の名前を入力してください。");
+            return;
+            }
+            if (isNaN(quantity) || quantity < 0) {
+            alert("在庫数は0以上の数値を入力してください。");
+            return;
+            }
+
+            if (name && quantity) {
+                inventory.push({ name, quantity });
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                renderTable();
+            }
+        }
+
+        function updateQuantity(index) {
+            const newQuantity = prompt("新しい在庫数を入力:", inventory[index].quantity);
+            if (newQuantity !== null) {
+                inventory[index].quantity = parseInt(newQuantity, 10);
+                localStorage.setItem('inventory', JSON.stringify(inventory));
+                renderTable();
+            }
+        }
+
+        function deleteDrink(index) {
+            inventory.splice(index, 1);
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            renderTable();
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
